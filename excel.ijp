@@ -1,0 +1,45 @@
+NB. project file: e:/deb/addons/tables/excel/excel
+
+coclass 'jproject'
+
+PRIMARYFILES=: 0 : 0
+~Addons/excel/excel/init
+~Addons/excel/excel/util
+~Addons/excel/excel/cmds
+~Addons/excel/excel/read
+)
+
+PRIMARYLIBS=: ''
+
+DEVFILES=: ''
+
+DEVLIBS=: ''
+
+OTHERFILES=: 0 : 0
+~Addons/excel/excel/manifest.ijs
+~Addons/excel/excel/test.xls
+~Addons/excel/excel/test0.ijs
+~Addons/excel/excel/test1.ijs
+)
+
+TARGETFILE=: '~Addons/tables/excel/excel.ijs'
+
+TARGETLOCALE=: 'cexcel'
+
+TARGETHEADER=: ''
+
+TARGETEXTRA=: ''
+
+BUILDOPTS=: 0 1 0 0 0 0 0
+
+PREBUILDFILE=: ''
+
+POSTBUILDFILE=: ''
+
+TESTFILE=: '~Addons/excel/excel/test.ijs'
+
+NOTES=: ''
+
+VERSION=: ''
+
+WINDOWS=: ''
