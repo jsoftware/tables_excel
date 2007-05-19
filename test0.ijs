@@ -1,6 +1,6 @@
 NB. test0
 NB.
-NB. test read using excel OLE
+NB. test reads using excel OLE
 
 load jpath '~addons\tables\excel\excel.ijs'
 
