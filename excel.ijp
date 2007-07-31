@@ -3,10 +3,10 @@ NB. project file: e:/deb/addons/tables/excel/excel
 coclass 'jproject'
 
 PRIMARYFILES=: 0 : 0
-~Addons/excel/excel/init
-~Addons/excel/excel/util
-~Addons/excel/excel/cmds
-~Addons/excel/excel/read
+~Addons/tables/excel/init
+~Addons/tables/excel/util
+~Addons/tables/excel/cmds
+~Addons/tables/excel/read
 )
 
 PRIMARYLIBS=: ''
@@ -16,10 +16,10 @@ DEVFILES=: ''
 DEVLIBS=: ''
 
 OTHERFILES=: 0 : 0
-~Addons/excel/excel/manifest.ijs
-~Addons/excel/excel/test.xls
-~Addons/excel/excel/test0.ijs
-~Addons/excel/excel/test1.ijs
+~Addons/tables/excel/manifest.ijs
+~Addons/tables/excel/test.xls
+~Addons/tables/excel/test0.ijs
+~Addons/tables/excel/test1.ijs
 )
 
 TARGETFILE=: '~Addons/tables/excel/excel.ijs'
@@ -36,7 +36,7 @@ PREBUILDFILE=: ''
 
 POSTBUILDFILE=: ''
 
-TESTFILE=: '~Addons/excel/excel/test.ijs'
+TESTFILE=: '~Addons/tables/excel/test.ijs'
 
 NOTES=: ''
 

@@ -2,7 +2,7 @@ NB. test1
 NB.
 NB. read test.xls worksheet and test results
 
-F=: jpath '~Addons\excel\excel\test.xls'
+F=: jpath '~Addons\tables\excel\test.xls'
 
 WSS=: ;: 'Rates Sales Empty Cell InCell'
 
