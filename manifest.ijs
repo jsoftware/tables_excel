@@ -3,7 +3,7 @@ NB. excel manifest
 CAPTION=: 'Reads Excel files using OLE'
 
 DESCRIPTION=: 0 : 0
-Reads Excel worksheet data using OLE. 
+Reads Excel worksheet data using OLE.
 
 The worksheets can be read as a whole, or by range.
 

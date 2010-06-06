@@ -1,4 +1,7 @@
 NB. init
+
+coclass 'cexcel'
+NB. init
 NB.
 NB. Method:
 NB.
