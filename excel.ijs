@@ -73,11 +73,11 @@ wd 'oleget xl base workbooks'
 id 'wbs'
 cmd 'wbs open "',y,'"'
 id 'wb'
-set 'wb saved 1'  
+set 'wb saved 1'
 1
 )
 readblock=: 3 : 0
-wdclipwrite '' 
+wdclipwrite ''
 get 'ws range ',setrange y
 cmd 'temp copy'
 res=. clipunfmt wdclipread''
