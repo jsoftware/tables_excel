@@ -12,7 +12,7 @@ Excel was developed by Anssi Seppala and Chris Burke.
 
 VERSION=: '1.0.15'
 
-RELEASE=: 'j602'
+RELEASE=: 'j602 j701'
 
 PLATFORMS=: 'win'
 

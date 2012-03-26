@@ -4,7 +4,7 @@ NB. test reads using excel OLE.
 
 load jpath '~addons/tables/excel/excel.ijs'
 
-F=: jpath '~addons/excel/excel/test.xls'
+F=: jpath '~addons/tables/excel/test.xls'
 
 NB. =========================================================
 NB. examples with test spreadsheet

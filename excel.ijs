@@ -1,10 +1,22 @@
+3 : 0''
+if. IFJ6 do.
+  IFWD_cexcel_=: -. IFCONSOLE
+else.
+  IFWD_cexcel_=: 0
+end.
+if. -.IFWD_cexcel_ do.
+  require 'tables/wdooo'
+end.
+''
+)
+
 coclass 'cexcel'
 ALPH=: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 NUMS=: '0123456789'
 CLIPMAX=: 25000
-HWNDP=: ''
+HWNDP=: p=: ''
 intersect=: e. # [
-info=: wdinfo @ ('Excel'&;)
+info=: sminfo @ ('Excel'&;)
 flexist=: 1:@(1!:4)@< :: 0:
 clipunfmt=: 3 : 0
 txt=. toJ y
@@ -46,6 +58,31 @@ b=. ((0 1 + 0 26 #: y) { balf),": x + 1
 e=. ((0 1 + 0 26 #: y + h - 1) { balf),": x + w
 ' ' -.~ b,':',e
 )
+
+CF_TEXT=: 1
+CF_UNICODETEXT=: 13
+
+getclipdata=: 3 : 0
+'user32 OpenClipboard i x'&cd <0
+h=. 'user32 GetClipboardData > x i'&cd <y
+ms=. 'kernel32 GlobalSize > x x'&cd <h
+mp=. 'kernel32 GlobalLock > x x'&cd <h
+data=. memr mp, 0, ms
+'kernel32 GlobalUnlock i x'&cd <h
+'user32 CloseClipboard i'&cd ''
+data
+)
+
+setclipdata=: 3 : 0
+h=. 'kernel32 GlobalAlloc > x i x'&cd (2+16b2000) ; ms=. #x
+mp=. 'kernel32 GlobalLock > x x'&cd <h
+(, x) memw mp, 0, ms
+'kernel32 GlobalUnlock i x'&cd <h
+'user32 OpenClipboard i x'&cd <0
+'user32 EmptyClipboard i'&cd ''
+'user32 SetClipboardData x i x'&cd y ; h
+'user32 CloseClipboard i'&cd ''
+)
 get=: wd@('psel xlauto;oleget xl '&,)
 set=: wd@('psel xlauto;oleset xl '&,)
 cmd=: wd@('psel xlauto;olemethod xl '&,)
@@ -53,12 +90,18 @@ id=: wd@('psel xlauto;oleid xl '&,)
 close=: 3 : 0
 if. #HWNDP do.
   try.
-    cmd 'base quit'
-    wd 'psel ',HWNDP,';pclose'
+    if. IFWD do.
+      cmd 'base quit'
+      wd 'psel ',HWNDP,';pclose'
+    else.
+      olemethod__p base ; 'base'
+      (oledestroy__p ::0:) ''
+      destroy__p ''
+    end.
   catch. end.
 end.
-wd :: ] 'psel xlauto;pclose'
-HWNDP=: ''
+wd^:IFWD :: ] 'psel xlauto;pclose'
+HWNDP=: p=: ''
 )
 open=: 3 : 0
 if. -. flexist y do.
@@ -66,22 +109,55 @@ if. -. flexist y do.
   0 return.
 end.
 close ''
-wd 'pc xlauto owner'
-HWNDP=: wd 'qhwndp'
-wd 'cc xl oleautomation:excel.application'
-wd 'oleget xl base workbooks'
-id 'wbs'
-cmd 'wbs open "',y,'"'
-id 'wb'
-set 'wb saved 1'
+if. IFWD do.
+  wd 'pc xlauto owner'
+  HWNDP=: wd 'qhwndp'
+  try.
+    wd 'cc xl oleautomation:excel.application'
+  catch.
+    wd 'psel ',HWNDP,';pclose'
+    HWNDP=: p=: ''
+    info 'No Excel Application'
+    0 return.
+  end.
+  wd 'oleget xl base workbooks'
+  id 'wbs'
+  cmd 'wbs open "',y,'"'
+  id 'wb'
+  set 'wb saved 1'
+else.
+  HWNDP=: p=: '' conew 'wdooo'
+  try.
+    'base temp'=. olecreate__p 'Excel.Application'
+  catch.
+    destroy__p ''
+    HWNDP=: p=: ''
+    info 'No Excel Application'
+    0 return.
+  end.
+  oleget__p base ; 'workbooks'
+  wb=: oleid__p temp
+  olemethod__p wb ; 'open' ; y
+  oleget__p base ; 'activeworkbook'
+  wb=: oleid__p temp
+  oleset__p wb ; 'saved' ; 1
+end.
 1
 )
 readblock=: 3 : 0
-wdclipwrite ''
-get 'ws range ',setrange y
-cmd 'temp copy'
-res=. clipunfmt wdclipread''
-wdclipwrite''
+if. IFWD do.
+  wdclipwrite ''
+  get 'ws range ',setrange y
+  cmd 'temp copy'
+  res=. clipunfmt wdclipread''
+  wdclipwrite''
+else.
+  CF_UNICODETEXT setclipdata~ ''
+  oleget__p ws ; 'range' ; setrange y
+  olemethod__p temp ; 'cpoy'
+  res=. clipunfmt 8&u: 6&u: getclipdata CF_UNICODETEXT
+  CF_UNICODETEXT setclipdata~ ''
+end.
 if. ($res) -: _2 {. y do. res return. end.
 'rws cls'=. $res
 if. rws < 2 { y do.
@@ -93,13 +169,24 @@ elseif. do.
 end.
 )
 readwss=: 3 : 0
-get 'base worksheets'
-id 'wss'
-count=. ". get 'wss count'
-r=. ''
-for_i. 1 + i.count do.
-  get 'wss item ',":i
-  r=. r,<get 'temp name'
+if. IFWD do.
+  get 'base worksheets'
+  id 'wss'
+  count=. ". get 'wss count'
+  r=. ''
+  for_i. 1 + i.count do.
+    get 'wss item ',":i
+    r=. r,<get 'temp name'
+  end.
+else.
+  oleget__p base ; 'worksheets'
+  wss=. oleid__p temp
+  count=. oleget__p wss ; 'count'
+  r=. ''
+  for_i. 1 + i.count do.
+    oleget__p wss ; 'item' ; i
+    r=. r, <oleget__p temp ; 'name'
+  end.
 end.
 r
 )
@@ -108,15 +195,27 @@ readsheet=: 3 : 0
 if. -. (#rng) e. 0 2 4 do.
   info 'Range should be 2 or 4 numbers' return.
 end.
-get 'base worksheets'
-if. 0=#ws do.
-  get 'temp item 1'
+if. IFWD do.
+  get 'base worksheets'
+  if. 0=#ws do.
+    get 'temp item 1'
+  else.
+    get 'temp item *',ws
+  end.
+  id 'ws'
+  get 'ws usedrange'
+  range=. get 'temp address'
 else.
-  get 'temp item *',ws
+  oleget__p base ; 'worksheets'
+  if. 0=#ws do.
+    oleget__p temp ; 'item' ; 1
+  else.
+    oleget__p temp ; 'item' ; ws
+  end.
+  ws1=. oleid__p temp
+  oleget__p ws1 ; 'usedrange'
+  range=. oleget__p temp ; 'address'
 end.
-id 'ws'
-get 'ws usedrange'
-range=. get 'temp address'
 uxyhw=. fixrange range
 if. #rng do.
   'ux uy uh uw'=. uxyhw
