@@ -92,7 +92,7 @@ if. #HWNDP do.
   try.
     if. IFWD do.
       cmd 'base quit'
-      wd 'psel ',HWNDP,';pclose'
+      wd 'psel ',(":HWNDP),';pclose'
     else.
       olemethod__p base ; 'base'
       (oledestroy__p ::0:) ''
@@ -111,11 +111,11 @@ end.
 close ''
 if. IFWD do.
   wd 'pc xlauto owner'
-  HWNDP=: wd 'qhwndp'
+  HWNDP=: wdqhwndp''
   try.
     wd 'cc xl oleautomation:excel.application'
   catch.
-    wd 'psel ',HWNDP,';pclose'
+    wd 'psel ',(":HWNDP),';pclose'
     HWNDP=: p=: ''
     info 'No Excel Application'
     0 return.
