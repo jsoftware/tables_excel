@@ -1,14 +1,4 @@
-3 : 0''
-if. IFJ6 do.
-  IFWD_cexcel_=: -. IFCONSOLE
-else.
-  IFWD_cexcel_=: 0
-end.
-if. -.IFWD_cexcel_ do.
-  require 'tables/wdooo'
-end.
-''
-)
+require 'tables/wdooo'
 
 coclass 'cexcel'
 ALPH=: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
