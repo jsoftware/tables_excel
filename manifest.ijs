@@ -10,9 +10,9 @@ The worksheets can be read as a whole, or by range.
 Excel was developed by Anssi Seppala and Chris Burke.
 )
 
-VERSION=: '1.0.17'
+VERSION=: '1.0.18'
 
-RELEASE=: 'j701'
+RELEASE=: 'j701 j801'
 
 PLATFORMS=: 'win'
 

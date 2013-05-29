@@ -1,6 +1,7 @@
 require 'tables/wdooo'
 
 coclass 'cexcel'
+IFWD=: 0
 ALPH=: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 NUMS=: '0123456789'
 CLIPMAX=: 25000
