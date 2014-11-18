@@ -2,7 +2,7 @@ NB. test0
 NB.
 NB. test reads using excel OLE.
 
-load jpath '~addons/tables/excel/excel.ijs'
+require jpath 'tables/excel'
 
 F=: jpath '~addons/tables/excel/test.xls'
 
@@ -20,6 +20,7 @@ smoutput readsheet_cexcel_ 'Empty'     NB. read empty sheet
 smoutput readsheet_cexcel_ 'Cell'      NB. read one cell sheet
 smoutput readsheet_cexcel_ 'InCell'    NB. read one cell sheet
 close_cexcel_ ''
+smoutput 'done'
 )
 
 test''

@@ -1,11 +1,10 @@
 require 'tables/wdooo'
 
 coclass 'cexcel'
-IFWD=: 0
 ALPH=: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 NUMS=: '0123456789'
 CLIPMAX=: 25000
-HWNDP=: p=: ''
+p=: ''
 intersect=: e. # [
 info=: sminfo @ ('Excel'&;)
 flexist=: 1:@(1!:4)@< :: 0:
@@ -74,25 +73,15 @@ mp=. 'kernel32 GlobalLock > x x'&cd <h
 'user32 SetClipboardData x i x'&cd y ; h
 'user32 CloseClipboard i'&cd ''
 )
-get=: wd@('psel xlauto;oleget xl '&,)
-set=: wd@('psel xlauto;oleset xl '&,)
-cmd=: wd@('psel xlauto;olemethod xl '&,)
-id=: wd@('psel xlauto;oleid xl '&,)
 close=: 3 : 0
-if. #HWNDP do.
+if. #p do.
   try.
-    if. IFWD do.
-      cmd 'base quit'
-      wd 'psel ',(":HWNDP),';pclose'
-    else.
-      olemethod__p base ; 'base'
-      (oledestroy__p ::0:) ''
-      destroy__p ''
-    end.
+    olemethod__p base ; 'quit'
+    (oledestroy__p ::0:) ''
   catch. end.
+  destroy__p ''
 end.
-wd^:IFWD :: ] 'psel xlauto;pclose'
-HWNDP=: p=: ''
+p=: ''
 )
 open=: 3 : 0
 if. -. flexist y do.
@@ -100,55 +89,29 @@ if. -. flexist y do.
   0 return.
 end.
 close ''
-if. IFWD do.
-  wd 'pc xlauto owner'
-  HWNDP=: wdqhwndp''
-  try.
-    wd 'cc xl oleautomation:excel.application'
-  catch.
-    wd 'psel ',(":HWNDP),';pclose'
-    HWNDP=: p=: ''
-    info 'No Excel Application'
-    0 return.
-  end.
-  wd 'oleget xl base workbooks'
-  id 'wbs'
-  cmd 'wbs open "',y,'"'
-  id 'wb'
-  set 'wb saved 1'
-else.
-  HWNDP=: p=: '' conew 'wdooo'
-  try.
-    'base temp'=. olecreate__p 'Excel.Application'
-  catch.
-    destroy__p ''
-    HWNDP=: p=: ''
-    info 'No Excel Application'
-    0 return.
-  end.
-  oleget__p base ; 'workbooks'
-  wb=: oleid__p temp
-  olemethod__p wb ; 'open' ; y
-  oleget__p base ; 'activeworkbook'
-  wb=: oleid__p temp
-  oleset__p wb ; 'saved' ; 1
+p=: '' conew 'wdooo'
+try.
+  'base temp'=. olecreate__p 'Excel.Application'
+catch.
+  destroy__p ''
+  p=: ''
+  info 'No Excel Application'
+  0 return.
 end.
+oleget__p base ; 'workbooks'
+wb=: oleid__p temp
+olemethod__p wb ; 'open' ; y
+oleget__p base ; 'activeworkbook'
+wb=: oleid__p temp
+oleset__p wb ; 'saved' ; 1
 1
 )
 readblock=: 3 : 0
-if. IFWD do.
-  wdclipwrite ''
-  get 'ws range ',setrange y
-  cmd 'temp copy'
-  res=. clipunfmt wdclipread''
-  wdclipwrite''
-else.
-  CF_UNICODETEXT setclipdata~ ''
-  oleget__p ws ; 'range' ; setrange y
-  olemethod__p temp ; 'cpoy'
-  res=. clipunfmt 8&u: 6&u: getclipdata CF_UNICODETEXT
-  CF_UNICODETEXT setclipdata~ ''
-end.
+CF_UNICODETEXT setclipdata~ ''
+oleget__p ws ; 'range' ; setrange y
+olemethod__p temp ; 'cpoy'
+res=. clipunfmt 8&u: 6&u: getclipdata CF_UNICODETEXT
+CF_UNICODETEXT setclipdata~ ''
 if. ($res) -: _2 {. y do. res return. end.
 'rws cls'=. $res
 if. rws < 2 { y do.
@@ -160,24 +123,13 @@ elseif. do.
 end.
 )
 readwss=: 3 : 0
-if. IFWD do.
-  get 'base worksheets'
-  id 'wss'
-  count=. ". get 'wss count'
-  r=. ''
-  for_i. 1 + i.count do.
-    get 'wss item ',":i
-    r=. r,<get 'temp name'
-  end.
-else.
-  oleget__p base ; 'worksheets'
-  wss=. oleid__p temp
-  count=. oleget__p wss ; 'count'
-  r=. ''
-  for_i. 1 + i.count do.
-    oleget__p wss ; 'item' ; i
-    r=. r, <oleget__p temp ; 'name'
-  end.
+oleget__p base ; 'worksheets'
+wss=. oleid__p temp
+count=. oleget__p wss ; 'count'
+r=. ''
+for_i. 1 + i.count do.
+  oleget__p wss ; 'item' ; i
+  r=. r, <oleget__p temp ; 'name'
 end.
 r
 )
@@ -186,27 +138,15 @@ readsheet=: 3 : 0
 if. -. (#rng) e. 0 2 4 do.
   info 'Range should be 2 or 4 numbers' return.
 end.
-if. IFWD do.
-  get 'base worksheets'
-  if. 0=#ws do.
-    get 'temp item 1'
-  else.
-    get 'temp item *',ws
-  end.
-  id 'ws'
-  get 'ws usedrange'
-  range=. get 'temp address'
+oleget__p base ; 'worksheets'
+if. 0=#ws do.
+  oleget__p temp ; 'item' ; 1
 else.
-  oleget__p base ; 'worksheets'
-  if. 0=#ws do.
-    oleget__p temp ; 'item' ; 1
-  else.
-    oleget__p temp ; 'item' ; ws
-  end.
-  ws1=. oleid__p temp
-  oleget__p ws1 ; 'usedrange'
-  range=. oleget__p temp ; 'address'
+  oleget__p temp ; 'item' ; ws
 end.
+ws1=. oleid__p temp
+oleget__p ws1 ; 'usedrange'
+range=. oleget__p temp ; 'address'
 uxyhw=. fixrange range
 if. #rng do.
   'ux uy uh uw'=. uxyhw
