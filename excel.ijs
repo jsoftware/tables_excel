@@ -1,13 +1,14 @@
 require 'tables/wdooo'
 
 coclass 'cexcel'
+p=: ''
+base=: temp=: wbs=: wb=: ws=: 0
 ALPH=: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 NUMS=: '0123456789'
 CLIPMAX=: 25000
 p=: ''
 intersect=: e. # [
 info=: sminfo @ ('Excel'&;)
-flexist=: 1:@(1!:4)@< :: 0:
 clipunfmt=: 3 : 0
 txt=. toJ y
 if. 0 e. $txt do. i.0 0 return. end.
@@ -63,7 +64,7 @@ data=. memr mp, 0, ms
 data
 )
 
-setclipdata=: 3 : 0
+setclipdata=: 4 : 0
 h=. 'kernel32 GlobalAlloc > x i x'&cd (2+16b2000) ; ms=. #x
 mp=. 'kernel32 GlobalLock > x x'&cd <h
 (, x) memw mp, 0, ms
@@ -76,31 +77,36 @@ mp=. 'kernel32 GlobalLock > x x'&cd <h
 close=: 3 : 0
 if. #p do.
   try.
+    (olerelease__p ::0:)^:(0~:ws) ws
+    (olemethod__p ::0:)^:(0~:wb) wb ; 'close'
+    (olerelease__p ::0:)^:(0~:wb) wb
+    (olerelease__p ::0:)^:(0~:wbs) wbs
     olemethod__p base ; 'quit'
-    (oledestroy__p ::0:) ''
   catch. end.
   destroy__p ''
 end.
 p=: ''
+base=: temp=: wbs=: wb=: ws=: 0
 )
 open=: 3 : 0
-if. -. flexist y do.
+if. -. fexist y do.
   info 'Not found: ',y
   0 return.
 end.
 close ''
 p=: '' conew 'wdooo'
 try.
-  'base temp'=. olecreate__p 'Excel.Application'
+  'base temp'=: olecreate__p 'Excel.Application'
 catch.
   destroy__p ''
   p=: ''
+  base=: temp=: 0
   info 'No Excel Application'
   0 return.
 end.
 oleget__p base ; 'workbooks'
-wb=: oleid__p temp
-olemethod__p wb ; 'open' ; y
+wbs=: oleid__p temp
+olemethod__p wbs ; 'open' ; y
 oleget__p base ; 'activeworkbook'
 wb=: oleid__p temp
 oleset__p wb ; 'saved' ; 1
@@ -109,8 +115,8 @@ oleset__p wb ; 'saved' ; 1
 readblock=: 3 : 0
 CF_UNICODETEXT setclipdata~ ''
 oleget__p ws ; 'range' ; setrange y
-olemethod__p temp ; 'cpoy'
-res=. clipunfmt 8&u: 6&u: getclipdata CF_UNICODETEXT
+olemethod__p temp ; 'copy'
+res=. clipunfmt }:^:(({.a.)={:) 8&u: 6&u: getclipdata CF_UNICODETEXT
 CF_UNICODETEXT setclipdata~ ''
 if. ($res) -: _2 {. y do. res return. end.
 'rws cls'=. $res
@@ -125,29 +131,30 @@ end.
 readwss=: 3 : 0
 oleget__p base ; 'worksheets'
 wss=. oleid__p temp
-count=. oleget__p wss ; 'count'
+count=. olevalue__p temp [ oleget__p wss ; 'count'
 r=. ''
 for_i. 1 + i.count do.
   oleget__p wss ; 'item' ; i
-  r=. r, <oleget__p temp ; 'name'
+  r=. r, <olevalue__p temp [ oleget__p temp ; 'name'
 end.
+olerelease__p wss
 r
 )
 readsheet=: 3 : 0
-'ws rng'=. 2 {. (boxopen y),<''
+'wsn rng'=. 2 {. (boxopen y),<''
 if. -. (#rng) e. 0 2 4 do.
   info 'Range should be 2 or 4 numbers' return.
 end.
 oleget__p base ; 'worksheets'
-if. 0=#ws do.
+if. 0=#wsn do.
   oleget__p temp ; 'item' ; 1
 else.
-  oleget__p temp ; 'item' ; ws
+  oleget__p temp ; 'item' ; wsn
 end.
-ws1=. oleid__p temp
-oleget__p ws1 ; 'usedrange'
-range=. oleget__p temp ; 'address'
-uxyhw=. fixrange range
+ws=: oleid__p temp
+oleget__p ws ; 'usedrange'
+address=. olevalue__p temp [ oleget__p temp ; 'address'
+uxyhw=. fixrange address
 if. #rng do.
   'ux uy uh uw'=. uxyhw
   'rx ry rh rw'=. 4 {. rng,_ _
@@ -167,9 +174,13 @@ while.
   r -: 0 do.
   max=. <. max%2
   if. max < 100 do.
+     olerelease__p ws
+     ws=: 0
     'Unable to read spreadsheet' 13!:8[12
   end.
 end.
+olerelease__p ws
+ws=: 0
 pre=. 0 >. (x-rx),y-ry
 r=. (rh,rw) {. (-pre+$r) {. r
 if. 1 1 -: $ r do.

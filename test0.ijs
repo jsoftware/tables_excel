@@ -2,7 +2,7 @@ NB. test0
 NB.
 NB. test reads using excel OLE.
 
-require jpath 'tables/excel'
+require 'tables/excel'
 
 F=: jpath '~addons/tables/excel/test.xls'
 
