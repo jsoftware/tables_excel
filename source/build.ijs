@@ -10,7 +10,6 @@ f=. 3 : 0
 )
 
 mkdir_j_ jpath '~addons/tables/excel'
-f 'manifest.ijs'
 f 'test0.ijs'
 f 'test1.ijs'
 f 'test.xls'
